@@ -1,70 +1,83 @@
-from fileinput import filename
 import requests
 import xml.etree.ElementTree as ET
 import csv
+import urllib3
 
-URL_LIMIT = 5000 # Her sitemap dosyasından çekilecek maksimum URL sayısı, bu kadar veri çekmek istiyoruz
+# SSL uyarısını bastırmak için
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-def fetch_urls_from_sitemap(sitemap_url):
-    """Verilen sitemap url'sinden tüm <loc> etiketlerindeki URL'leri çeker."""
+# Çekmek istediğimiz maksimum URL sayısı
+URL_LIMIT = 5000
+# Ana site haritası endeksinin adresi
+ROOT_SITEMAP_URL = "https://www.anahaberajansi.com.tr/sitemap.xml"
 
+def get_article_urls_from_all_sitemaps():
+    """
+    Ana sitemap endeksinden başlayarak tüm alt sitemap'leri gezer
+    ve belirlenen limite kadar haber URL'lerini toplar.
+    """
+    all_article_urls = []
+    
     try:
-        print(f"Sitemap'ten URL'ler çekiliyor: {sitemap_url}")
-        response = requests.get(sitemap_url, timeout=10)
-        response.raise_for_status()  # HTTP hatası olunca exception fırlatır
+        print(f"Ana sitemap endeksi indiriliyor: {ROOT_SITEMAP_URL}")
+        response = requests.get(ROOT_SITEMAP_URL, timeout=15, verify=False)
+        response.raise_for_status()
+        
+        root = ET.fromstring(response.content)
+        namespace = {'sitemap': 'http://www.sitemaps.org/schemas/sitemap/0.9'}
+        
+        # Endeks içindeki tüm alt sitemap linklerini bul
+        sitemap_links = [
+            elem.text for elem in root.findall('sitemap:sitemap/sitemap:loc', namespace)
+            if 'post-sitemap' in elem.text # Sadece haberleri içerenleri hedef al
+        ]
+        
+        print(f"Toplam {len(sitemap_links)} adet 'post' sitemap'i bulundu. Tarama başlıyor...")
+        
+        # Her bir alt sitemap'i gez
+        for sitemap_url in sitemap_links:
 
-        root = ET.fromstring(response.content)# XML içeriğini ayrıştırır
-        namespace = {'sitemap': 'http://www.sitemaps.org/schemas/sitemap/0.9'} # Namespace tanımı
+            print(f"-> Alt sitemap işleniyor: {sitemap_url}")
+            sub_response = requests.get(sitemap_url, timeout=15, verify=False)
+            sub_root = ET.fromstring(sub_response.content)
+            
+            # Bu alt sitemap içindeki haber linklerini topla
+            article_links_in_sub = [
+                elem.text for elem in sub_root.findall('sitemap:url/sitemap:loc', namespace)
+            ]
+            
+            for article_url in article_links_in_sub:
+                all_article_urls.append(article_url)
+                if len(all_article_urls) >= URL_LIMIT:
+                    break # Limite ulaştıysak bu sitemap'i işlemeyi bırak
+        
+        print(f"Tarama tamamlandı. Toplam {len(all_article_urls)} adet haber URL'si çekildi.")
+        return all_article_urls[:URL_LIMIT] # Tam olarak limitte döndüğünden emin ol
 
-        urls = []
-        # Tüm <loc> etiketlerini bul ve URL'leri listeye ekle
-        for url_element in root.findall('sitemap:url', namespace):
+    except requests.exceptions.RequestException as e:
+        print(f"Hata: Sitemap'e ulaşılamadı. Sebep: {e}")
+        return all_article_urls
+    except ET.ParseError as e:
+        print(f"Hata: XML parse edilirken bir sorun oluştu. Sebep: {e}")
+        return all_article_urls
 
-            if len(urls) >= URL_LIMIT:
-                print(f"Belirlenen {URL_LIMIT} URL limitine ulaşıldı. Arama durduruluyor.")
-                break
-
-            loc = url_element.find('sitemap:loc', namespace)
-            if loc is not None:
-                urls.append(loc.text) # boş değilse URL'yi listeye ekle
-
-        return urls
-    
-    #detaylı exception handling
-    except Exception as e:
-        print(f"Hata oluştu: {e}")
-        return urls
-    except requests.Timeout:
-        print("İstek zaman aşımına uğradı.")
-        return urls
-    except requests.RequestException as e:
-        print(f"İstek hatası: {e}")
-        return urls
-    except ET.ParseError:
-        print("XML ayrıştırma hatası.")
-        return urls 
-    
-def save_urls_to_csv(urls, csv_filename):
-    """URL listesini CSV dosyasına kaydeder."""
-
+def save_urls_to_csv(urls, filename="urls.csv"):
     if not urls:
         print("Kaydedilecek URL bulunamadı.")
         return
-
-    with open(csv_filename, mode='w', newline='', encoding='utf-8') as file:
+        
+    with open(filename, mode='w', newline='', encoding='utf-8') as file:
         writer = csv.writer(file)
         writer.writerow(['url'])
         for url in urls:
             writer.writerow([url])
     
-    print(f"Tüm URL'ler başarıyla '{filename}' dosyasına kaydedildi.")    
+    print(f"Tüm URL'ler başarıyla '{filename}' dosyasına kaydedildi.")
 
+# --- Ana Script ---
 if __name__ == "__main__":
-    
-    SITEMAP_URL = "https://www.anahaberajansi.com.tr/post-sitemap.xml"
-    
-    # 1. Adım: Site haritasından URL'leri çek
-    all_urls = fetch_urls_from_sitemap(SITEMAP_URL)
+    # 1. Adım: Tüm sitemap'lerden URL'leri çek
+    final_urls = get_article_urls_from_all_sitemaps()
     
     # 2. Adım: Çekilen URL'leri CSV dosyasına kaydet
-    save_urls_to_csv(all_urls, "sitemap_urls.csv")
+    save_urls_to_csv(final_urls)
