@@ -6,7 +6,7 @@ import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 # Toplamak istediğimiz maksimum URL sayısı
-URL_LIMIT = 3000
+URL_LIMIT = 8000
 
 # TRT'nin arşiv sitemap'lerini listeleyen ana endeks dosyaları
 TOP_LEVEL_SITEMAPS = [
