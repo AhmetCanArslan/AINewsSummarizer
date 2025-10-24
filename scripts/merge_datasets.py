@@ -1,14 +1,14 @@
 import pandas as pd
 import os
 
-# Birleştirilecek dosyaların adları
+# Birleştirilecek dosyaların adları (data klasöründe)
 files_to_merge = [
-    'anadolu_ajansi_haberler.csv', 
-    'trt_haberler.csv'
+    '../data/anadolu_ajansi_haberler.csv', 
+    '../data/trt_haberler.csv'
 ]
 
-# Çıktı dosyasının adı
-output_filename = 'final_dataset.csv'
+# Çıktı dosyasının adı (data klasöründe)
+output_filename = '../data/final_dataset.csv'
 
 # Boş bir DataFrame oluşturarak başla
 final_df = pd.DataFrame()

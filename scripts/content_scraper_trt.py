@@ -8,7 +8,7 @@ import urllib3
 # SSL sertifika doğrulama hatalarında çıkan uyarıyı gizler
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-def read_urls_from_csv(filename="urls_trt.csv"):
+def read_urls_from_csv(filename="../urls/urls_trt.csv"):
     """
     Verilen CSV dosyasından URL'leri okur.
     """
@@ -76,12 +76,12 @@ def parse_article_trt(url):
 
 # --- Ana Script ---
 if __name__ == "__main__":
-    article_urls = read_urls_from_csv("urls_trt.csv")
+    article_urls = read_urls_from_csv("../urls/urls_trt.csv")
     
     if not article_urls:
         print("İşleme devam etmek için URL bulunamadı.")
     else:
-        output_csv_file = 'trt_haberler.csv'
+        output_csv_file = '../data/trt_haberler.csv'
         fieldnames = ['url', 'title', 'summary', 'publish_date', 'article_text']
         
         # CSV dosyasını yazma modunda aç

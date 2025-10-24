@@ -8,7 +8,7 @@ import urllib3
 # SSL uyarısını bastırmak için
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-def read_urls_from_csv(filename="urls.csv"):
+def read_urls_from_csv(filename="../urls/urls.csv"):
     if not os.path.exists(filename):
         print(f"Hata: '{filename}' dosyası bulunamadı.")
         return []
@@ -71,12 +71,12 @@ def parse_article(url):
 
 # --- Ana Script---
 if __name__ == "__main__":
-    article_urls = read_urls_from_csv("urls.csv")
+    article_urls = read_urls_from_csv("../urls/urls.csv")
     
     if not article_urls:
         print("İşleme devam etmek için URL bulunamadı. Script sonlandırılıyor.")
     else:
-        output_csv_file = 'anadolu_ajansi_haberler.csv'
+        output_csv_file = '../data/anadolu_ajansi_haberler.csv'
         fieldnames = ['url', 'title', 'summary', 'publish_date', 'article_text']
         
         with open(output_csv_file, mode='w', newline='', encoding='utf-8') as file:
