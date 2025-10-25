@@ -6,7 +6,7 @@ def main():
     print("Veri Ön İşleme Script'i Başlatıldı.")
     
     base_dir = os.path.dirname(__file__) # Şu anki dosyanın klasörü (scripts/dataPreprocess)
-    raw_data_path = os.path.join(base_dir, '../../data/raw/final_dataset.csv')
+    raw_data_path = os.path.join(base_dir, '../../data/final_dataset.csv')
     processed_data_path = os.path.join(base_dir, '../../data/processed/cleaned_dataset.csv')
     
     # 1. Ham verinin hepsini yükle
