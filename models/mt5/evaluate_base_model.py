@@ -5,9 +5,7 @@ import evaluate
 import torch
 
 MODEL_ID = "csebuetnlp/mT5_multilingual_XLSum"
-
 DATA_CSV_PATH = "../../data/processed/cleaned_dataset.csv"
-
 TEXT_COL = "cleaned_article"     
 SUMMARY_COL = "cleaned_summary"   
 OUTPUT_FILE = "firstModelOutput.csv"
@@ -22,6 +20,7 @@ model = AutoModelForSeq2SeqLM.from_pretrained(MODEL_ID)
 summarizer = pipeline("summarization", model=model, tokenizer=tokenizer, device=device)
 
 df = pd.read_csv(DATA_CSV_PATH).fillna("")
+df = df.head(100)  # Limit to first 100 rows for quick evaluation
 print(f"✅ Loaded {len(df)} samples from CSV")
 
 # Summarize
@@ -69,7 +68,7 @@ for k, v in metrics.items():
     print(f"{k}: {v:.3f}")
 
 # 📊 ROUGE results (F1 scores):
-# rouge1: 0.391
-# rouge2: 0.246
-# rougeL: 0.331
-# rougeLsum: 0.332
+# rouge1: 0.435
+# rouge2: 0.347
+# rougeL: 0.388
+# rougeLsum: 0.390
