@@ -1,0 +1,7 @@
+--- ROUGE METRICS COMPARISON (0-100) ---
+
+           Base Model  Fine-Tuned Model  Difference (Improvement)
+rouge1        34.5025           40.9893                    6.4869
+rouge2        23.3239           29.1094                    5.7855
+rougeL        30.4868           36.8869                    6.4001
+rougeLsum     30.6247           37.0035                    6.3788
