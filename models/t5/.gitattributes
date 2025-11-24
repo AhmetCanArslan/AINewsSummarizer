@@ -1,0 +1,2 @@
+models/t5/t5_finetuned/** filter=lfs diff=lfs merge=lfs -text
+/t5_finetuned/** filter=lfs diff=lfs merge=lfs -text
