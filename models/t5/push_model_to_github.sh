@@ -3,7 +3,7 @@ set -e
 
 REMOTE=${1:-origin}
 BRANCH=${2:-main}
-MODEL_DIR="models/t5/t5_finetuned"
+MODEL_DIR="models/t5/t5_finetuned_2"
 
 echo "Remote: $REMOTE | Branch: $BRANCH"
 echo "Model dir: $MODEL_DIR"
@@ -47,7 +47,7 @@ fi
 echo "Adding model files to git (this may be large)..."
 git -C "$REPO_ROOT" add "$MODEL_DIR"
 
-git -C "$REPO_ROOT" commit -m "Add fine-tuned T5 model" || echo "Nothing to commit."
+git -C "$REPO_ROOT" commit -m "Add latest fine-tuned T5 model" || echo "Nothing to commit."
 
 echo "Pushing to $REMOTE/$BRANCH ..."
 git -C "$REPO_ROOT" push "$REMOTE" "$BRANCH"
